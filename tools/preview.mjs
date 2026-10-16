@@ -1,0 +1,11 @@
+import {_electron as electron} from '@playwright/test';
+const application=await electron.launch({args:['.'],cwd:process.cwd()});
+const page=await application.firstWindow();
+page.on('pageerror',error=>console.error('PAGEERROR',error));
+page.on('console',message=>{if(['error','warning'].includes(message.type()))console.log(message.type(),message.text());});
+await page.waitForSelector('#app[data-ready="true"]',{timeout:30000});
+await page.waitForTimeout(1600);
+await page.screenshot({path:'verification/initial.png'});
+console.log('READY',await page.title(),await page.evaluate(()=>({width:innerWidth,height:innerHeight,canvas:document.querySelector('canvas').width}))); 
+process.on('SIGINT',async()=>{await application.close();process.exit(0);});
+await new Promise(()=>{});
